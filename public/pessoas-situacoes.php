@@ -1,19 +1,19 @@
 <?php
 
-require_once dirname(__DIR__) . '/src/controllers/FamiliaController.php'; // Mudei o controller
-$familiaController = new FamiliaController(); // Instanciando o novo controller
+require_once dirname(__DIR__) . '/src/controllers/PessoaSituacaoController.php';
+$pessoaSituacaoController = new PessoaSituacaoController();
 
 ?>
 
 <!DOCTYPE html>
-<html lang="pt-BR"> <!-- Mudei para o português -->
+<html lang="pt-BR">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Igreja Digital | Famílias</title> <!-- Título atualizado -->
+    <title>Igreja Digital | Situações</title>
     <?php include 'includes/header.php' ?>
 </head>
 
@@ -25,20 +25,22 @@ $familiaController = new FamiliaController(); // Instanciando o novo controller
             <div class="container-fluid p-2">
                 <div class="card mb-2 shadow-sm">
                     <div class="card-body p-1">
-                        <a class="btn btn-primary btn-sm custom-nav " href="home.php" role="button"><i class="fa-solid fa-house"></i> Início</a>
+                        <a class="btn btn-primary btn-sm custom-nav" href="home.php" role="button"><i class="fa-solid fa-house"></i> Início</a>
                     </div>
                 </div>
                 <div class="card shadow-sm mb-2">
                     <div class="card-body p-2">
 
                         <?php
+                        // Processa a requisição para criar uma nova situação
                         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn_salvar'])) {
-
+                            
                             $dados = [
-                                'familia_nome' => htmlspecialchars($_POST['familia_nome'], ENT_QUOTES, 'UTF-8'), // Mudança do nome do campo
+                                'situacao_nome' => htmlspecialchars($_POST['situacao_nome'], ENT_QUOTES, 'UTF-8'),
+                                'situacao_descricao' => htmlspecialchars($_POST['situacao_descricao'], ENT_QUOTES, 'UTF-8'),
                             ];
 
-                            $result = $familiaController->criar($dados); // Chamando o método criar do FamiliaController
+                            $result = $pessoaSituacaoController->criar($dados);
 
                             if ($result['status'] == 'success') {
                                 echo '<div class="alert alert-success mb-2 py-1 px-2 custom_alert" role="alert">' . $result['message'] . '</div>';
@@ -50,10 +52,10 @@ $familiaController = new FamiliaController(); // Instanciando o novo controller
 
                         <form class="row g-2 form_custom" method="POST" enctype="application/x-www-form-urlencoded">
                             <div class="col-md-12 col-12">
-                                <input type="text" class="form-control form-control-sm" name="familia_nome" placeholder="Nome da família" required> <!-- Mudança do nome do campo -->
+                                <input type="text" class="form-control form-control-sm" name="situacao_nome" placeholder="Nome da situação" required>
                             </div>
                             <div class="col-md-12 col-12">
-                                <textarea class="form-control form-control-sm" name="familia_descricao" rows="5" placeholder="Descrição da família"></textarea> <!-- Campo removido conforme o controlador atual -->
+                                <textarea class="form-control form-control-sm" name="situacao_descricao" rows="5" placeholder="Descrição da situação"></textarea>
                             </div>
                             <div class="col-md-4 col-6">
                                 <button type="submit" class="btn btn-success btn-sm" name="btn_salvar"><i class="fa-regular fa-floppy-disk"></i> Salvar</button>
@@ -67,24 +69,27 @@ $familiaController = new FamiliaController(); // Instanciando o novo controller
                             <table class="table table-striped table-hover table-bordered mb-0 custom_table">
                                 <thead>
                                     <tr>
-                                        <td style="white-space: nowrap;">Família</td> <!-- Título atualizado -->
-                                        <td style="white-space: nowrap;">Criado em</td> <!-- Removido Descrição conforme o modelo -->
+                                        <td style="white-space: nowrap;">Situação</td>
+                                        <td style="white-space: nowrap;">Descrição</td>
+                                        <td style="white-space: nowrap;">Criado em</td>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $busca = $familiaController->listar(); // Chamando o método listar do FamiliaController
+                                    // Lista as situações cadastradas
+                                    $busca = $pessoaSituacaoController->listar();
                                     if ($busca['status'] == 'success') {
-                                        foreach ($busca['dados'] as $familia) { // Mudança para familia
+                                        foreach ($busca['dados'] as $situacao) {
                                             echo '<tr>';
-                                            echo '<td style="white-space: nowrap;"><a href="editar-familia.php?familia=' . $familia['familia_id'] . '">' . $familia['familia_nome'] . '</a></td>'; // Mudança para familia
-                                            echo '<td style="white-space: nowrap;">' . date('d/m/Y | H:i', strtotime($familia['familia_adicionada_em'])) . '</td>'; // Removido campo de descrição
+                                            echo '<td style="white-space: nowrap;"><a href="editar-situacao.php?situacao=' . $situacao['situacao_id'] . '">' . $situacao['situacao_nome'] . '</a></td>';
+                                            echo '<td style="white-space: nowrap;">' . $situacao['situacao_descricao'] . '</td>';
+                                            echo '<td style="white-space: nowrap;">' . date('d/m/Y | H:i', strtotime($situacao['situacao_adicionada_em'])) . '</td>';
                                             echo '</tr>';
                                         }
-                                    } else if ($busca['status'] == 'vazio') { // Mudança de 'empty' para 'vazio'
-                                        echo '<tr><td colspan="2">' . $busca['message'] . '</td></tr>'; // Mudança do colspan
+                                    } else if ($busca['status'] == 'vazio') {
+                                        echo '<tr><td colspan="3">' . $busca['message'] . '</td></tr>';
                                     } else if ($busca['status'] == 'error') {
-                                        echo '<tr><td colspan="2">' . $busca['message'] . '</td></tr>'; // Mudança do colspan
+                                        echo '<tr><td colspan="3">' . $busca['message'] . '</td></tr>';
                                     }
                                     ?>
                                 </tbody>
