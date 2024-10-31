@@ -12,9 +12,14 @@ $pessoaSituacaoController = new PessoaSituacaoController();
 require_once dirname(__DIR__) . '/src/controllers/FamiliaController.php';
 $familiaController = new FamiliaController();
 
-$ordernar_por = $_GET['ordernar_por'] ?? 'pessoa_nome';
-$ordem = $_GET['ordem'] ?? 'asc';
-$termo = $_GET['termo'] ?? null;
+
+$pessoaId = $_GET['pessoa'];
+$buscaPessoa = $pessoaController->buscar($pessoaId);
+
+if ($buscaPessoa['status'] == 'empty' || $buscaPessoa['status'] == 'error') {
+    header('Location: pessoas.php');
+    exit;
+}
 
 ?>
 
@@ -39,25 +44,8 @@ $termo = $_GET['termo'] ?? null;
                 <div class="card mb-2 shadow-sm">
                     <div class="card-body p-1">
                         <a class="btn btn-primary btn-sm custom-nav" href="home.php" role="button"><i class="fa-solid fa-house"></i> Início</a>
+                        <a class="btn btn-success btn-sm custom-nav" href="pessoas.php" role="button"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
                     </div>
-                </div>
-
-                <div class="card mb-2 card_description">
-                    <div class="card-header bg-primary text-white px-2 py-1 card-background">Pessoas</div>
-                    <div class="card-body p-2">
-                        <p class="card-text mb-2">Gerencie as pessoas vinculadas à igreja.</p>
-                        <p class="card-text mb-2">
-                            Por favor, preencha os campos obrigatórios:
-                        <ul class="mb-1">
-                            <li><b>Nome:</b> Nome completo da pessoa.</li>
-                            <li><b>CPF:</b> CPF da pessoa (formato: 123.456.789-09).</li>
-                            <li><b>E-mail:</b> Endereço de e-mail atualizado.</li>
-                            <li><b>Data de Aniversário:</b> Data de nascimento (formato: dd/mm).</li>
-                            <li><b>Município:</b> Município de residência.</li>
-                            <li><b>Estado:</b> Sigla do estado (exemplo: SP, RJ).</li>
-                        </ul>
-                    </div>
-
                 </div>
                 <div class="card mb-2 shadow-sm">
                     <div class="card-body p-1">
@@ -73,7 +61,7 @@ $termo = $_GET['termo'] ?? null;
                     <div class="card-body p-2">
 
                         <?php
-                        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn_salvar'])) {
+                        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn_atualizar'])) {
 
                             $dados = [
                                 'pessoa_nome' => $_POST['pessoa_nome'] ?? null,
@@ -94,13 +82,31 @@ $termo = $_GET['termo'] ?? null;
                                 'pessoa_cargo' => $_POST['pessoa_cargo'] ?? null,
                                 'pessoa_situacao' => $_POST['pessoa_situacao'] ?? null,
                                 'pessoa_informacoes' => $_POST['pessoa_informacoes'] ?? null,
-                                'foto' => $_FILES['foto'] ?? null,
+                                'foto' => $_FILES['foto'],
                             ];
 
-                            $result = $pessoaController->criar($dados);
+                            $result = $pessoaController->atualizar($pessoaId, $dados);
+
+
+                            
 
                             if ($result['status'] == 'success') {
                                 echo '<div class="alert alert-success mb-2 py-1 px-2 custom_alert" role="alert">' . $result['message'] . '</div>';
+                                $buscaPessoa = $pessoaController->buscar($pessoaId);
+                            } else {
+                                echo '<div class="alert alert-danger mb-2 py-1 px-2 custom_alert" role="alert">' . $result['message'] . '</div>';
+                            }
+                        }
+
+                        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn_apagar'])) {
+                            $result = $pessoaController->apagar($pessoaId);
+                            if ($result['status'] == 'success') {
+                                echo '<div class="alert alert-success mb-2 py-1 px-2 custom_alert" role="alert">' . $result['message'] . '. Aguarde...</div>';
+                                echo '<script>
+                                        setTimeout(function(){
+                                            window.location.href = "pessoas.php";
+                                        }, 1000);
+                                    </script>';
                             } else {
                                 echo '<div class="alert alert-danger mb-2 py-1 px-2 custom_alert" role="alert">' . $result['message'] . '</div>';
                             }
@@ -109,16 +115,16 @@ $termo = $_GET['termo'] ?? null;
 
                         <form class="row g-2 form_custom" method="POST" enctype="multipart/form-data">
                             <div class="col-md-4 col-12">
-                                <input type="text" class="form-control form-control-sm" name="pessoa_nome" placeholder="Nome" required>
+                                <input type="text" class="form-control form-control-sm" name="pessoa_nome" placeholder="Nome" value="<?php echo $buscaPessoa['dados']['pessoa_nome'] ?>" required>
                             </div>
                             <div class="col-md-3 col-6">
-                                <input type="text" class="form-control form-control-sm" name="pessoa_cpf" data-mask="000.000.000-00" placeholder="CPF" required>
+                                <input type="text" class="form-control form-control-sm" name="pessoa_cpf" data-mask="000.000.000-00" placeholder="CPF" value="<?php echo $buscaPessoa['dados']['pessoa_cpf'] ?>" required>
                             </div>
                             <div class="col-md-3 col-6">
-                                <input type="email" class="form-control form-control-sm" name="pessoa_email" placeholder="Email">
+                                <input type="email" class="form-control form-control-sm" name="pessoa_email" placeholder="Email" value="<?php echo $buscaPessoa['dados']['pessoa_email'] ?>">
                             </div>
                             <div class="col-md-2 col-6">
-                                <input type="text" class="form-control form-control-sm" name="pessoa_aniversario" data-mask="00/00" placeholder="Aniversário (dd/mm)" required>
+                                <input type="text" class="form-control form-control-sm" name="pessoa_aniversario" data-mask="00/00" placeholder="Aniversário (dd/mm)" value="<?php echo date('d/m', strtotime($buscaPessoa['dados']['pessoa_aniversario'])) ?>" required>
                             </div>
                             <div class="col-md-2 col-6">
                                 <select class="form-select form-select-sm" name="pessoa_familia" id="familia">
@@ -126,7 +132,7 @@ $termo = $_GET['termo'] ?? null;
                                     $busca_familia = $familiaController->listar();
                                     if ($busca_familia['status'] == 'success') {
                                         foreach ($busca_familia['dados'] as $familia) {
-                                            if ($familia['familia_id'] == 1) {
+                                            if ($familia['familia_id'] == $buscaPessoa['dados']['pessoa_familia']) {
                                                 echo '<option value="' . $familia['familia_id'] . '" selected>' . $familia['familia_nome'] . '</option>';
                                             } else {
                                                 echo '<option value="' . $familia['familia_id'] . '">' . $familia['familia_nome'] . '</option>';
@@ -138,7 +144,7 @@ $termo = $_GET['termo'] ?? null;
                                 </select>
                             </div>
                             <div class="col-md-7 col-6">
-                                <input type="text" class="form-control form-control-sm" name="pessoa_endereco" placeholder="Endereço">
+                                <input type="text" class="form-control form-control-sm" name="pessoa_endereco" placeholder="Endereço" value="<?php echo $buscaPessoa['dados']['pessoa_endereco'] ?>">
                             </div>
                             <div class="col-md-1 col-6">
                                 <select class="form-select form-select-sm" name="pessoa_estado" id="estado" required>
@@ -151,29 +157,29 @@ $termo = $_GET['termo'] ?? null;
                                 </select>
                             </div>
                             <div class="col-md-2 col-6">
-                                <input type="text" class="form-control form-control-sm" name="pessoa_telefone_celular" data-mask="(00) 00000-0000" placeholder="Telefone Celular (xx) xxxxx-xxxx">
+                                <input type="text" class="form-control form-control-sm" name="pessoa_telefone_celular" data-mask="(00) 00000-0000" placeholder="Telefone Celular (xx) xxxxx-xxxx" value="<?php echo $buscaPessoa['dados']['pessoa_telefone_celular'] ?>">
                             </div>
                             <div class="col-md-2 col-6">
-                                <input type="text" class="form-control form-control-sm" name="pessoa_telefone_fixo" data-mask="(00) 00000-0000" placeholder="Telefone Fixo (xx) xxxxx-xxxx">
+                                <input type="text" class="form-control form-control-sm" name="pessoa_telefone_fixo" data-mask="(00) 00000-0000" placeholder="Telefone Fixo (xx) xxxxx-xxxx" value="<?php echo $buscaPessoa['dados']['pessoa_telefone_fixo'] ?>">
                             </div>
                             <div class="col-md-2 col-6">
-                                <input type="text" class="form-control form-control-sm" name="pessoa_instagram" placeholder="@instagram">
+                                <input type="text" class="form-control form-control-sm" name="pessoa_instagram" placeholder="@instagram" value="<?php echo $buscaPessoa['dados']['pessoa_instagram'] ?>">
                             </div>
                             <div class="col-md-2 col-6">
-                                <input type="text" class="form-control form-control-sm" name="pessoa_facebook" placeholder="@facebook">
+                                <input type="text" class="form-control form-control-sm" name="pessoa_facebook" placeholder="@facebook" value="<?php echo $buscaPessoa['dados']['pessoa_facebook'] ?>">
                             </div>
                             <div class="col-md-2 col-12">
-                                <input type="text" class="form-control form-control-sm" name="pessoa_data_conversao" data-mask="00/00/0000" placeholder="Data de Conversão (dd/mm/aaaa)">
+                                <input type="text" class="form-control form-control-sm" name="pessoa_data_conversao" data-mask="00/00/0000" placeholder="Data de Conversão (dd/mm/aaaa)" value="<?php echo isset($buscaPessoa['dados']['pessoa_data_conversao']) && !empty($buscaPessoa['dados']['pessoa_data_conversao']) ? date('d/m/Y', strtotime($buscaPessoa['dados']['pessoa_data_conversao'])) : ''; ?>">
                             </div>
                             <div class="col-md-2 col-12">
                                 <select class="form-select form-select-sm" name="pessoa_batizada_local">
-                                    <option value="1">Batizado na PIB</option>
-                                    <option value="2">Batizado em outra igreja</option>
-                                    <option value="3" selected>Não foi batizado</option>
+                                    <option value="1" <?php echo ($buscaPessoa['dados']['pessoa_batizada_local'] == 1) ? 'selected' : ''; ?>>Batizado na PIB</option>
+                                    <option value="2" <?php echo ($buscaPessoa['dados']['pessoa_batizada_local'] == 2) ? 'selected' : ''; ?>>Batizado em outra igreja</option>
+                                    <option value="3" <?php echo ($buscaPessoa['dados']['pessoa_batizada_local'] == 3) ? 'selected' : ''; ?>>Não foi batizado</option>
                                 </select>
                             </div>
                             <div class="col-md-2 col-12">
-                                <input type="texte" class="form-control form-control-sm" name="pessoa_data_batismo" data-mask="00/00/0000" placeholder="Data de Batismo (dd/mm/aaaa)">
+                                <input type="texte" class="form-control form-control-sm" name="pessoa_data_batismo" data-mask="00/00/0000" placeholder="Data de Batismo (dd/mm/aaaa)" value="<?php echo isset($buscaPessoa['dados']['pessoa_data_conversao']) && !empty($buscaPessoa['dados']['pessoa_data_batismo']) ? date('d/m/Y', strtotime($buscaPessoa['dados']['pessoa_data_batismo'])) : ''; ?>">
                             </div>
                             <div class="col-md-4 col-12">
                                 <select class="form-select form-select-sm" name="pessoa_cargo" id="cargo" required>
@@ -181,7 +187,7 @@ $termo = $_GET['termo'] ?? null;
                                     $busca_cargo = $cargoController->listar();
                                     if ($busca_cargo['status'] == 'success') {
                                         foreach ($busca_cargo['dados'] as $cargo) {
-                                            if ($cargo['cargo_id'] == 1) {
+                                            if ($cargo['cargo_id'] == $buscaPessoa['dados']['pessoa_cargo']) {
                                                 echo '<option value="' . $cargo['cargo_id'] . '" selected>' . $cargo['cargo_nome'] . '</option>';
                                             } else {
                                                 echo '<option value="' . $cargo['cargo_id'] . '">' . $cargo['cargo_nome'] . '</option>';
@@ -198,7 +204,7 @@ $termo = $_GET['termo'] ?? null;
                                     $busca_situacao = $pessoaSituacaoController->listar();
                                     if ($busca_situacao['status'] == 'success') {
                                         foreach ($busca_situacao['dados'] as $situacao) {
-                                            if ($situacao['situacao_id'] == 1) {
+                                            if ($situacao['situacao_id'] == $buscaPessoa['dados']['pessoa_situacao']) {
                                                 echo '<option value="' . $situacao['situacao_id'] . '" selected>' . $situacao['situacao_nome'] . '</option>';
                                             } else {
                                                 echo '<option value="' . $situacao['situacao_id'] . '">' . $situacao['situacao_nome'] . '</option>';
@@ -216,82 +222,15 @@ $termo = $_GET['termo'] ?? null;
                                 </div>
                             </div>
                             <div class="col-md-12 col-12">
-                                <textarea class="form-control form-control-sm" name="pessoa_informacoes" rows="5" placeholder="Informações da pessoa"></textarea>
+                                <textarea class="form-control form-control-sm" name="pessoa_informacoes" rows="5" placeholder="Informações da pessoa"><?php echo $buscaPessoa['dados']['pessoa_informacoes'] ?></textarea>
                             </div>
                             <div class="col-md-4 col-6">
-                                <button type="submit" class="btn btn-success btn-sm" name="btn_salvar"><i class="fa-regular fa-floppy-disk"></i> Salvar</button>
+                                <button type="submit" class="btn btn-success btn-sm" name="btn_atualizar"><i class="fa-regular fa-floppy-disk"></i> Atualizar</button>
+                                <button type="submit" class="btn btn-danger btn-sm" name="btn_apagar"><i class="fa-solid fa-trash-can"></i> Apagar</button>
                             </div>
                         </form>
                     </div>
                 </div>
-                <div class="card shadow-sm mb-2">
-                    <div class="card-body p-2">
-                        <form class="row g-2 form_custom" method="GET" enctype="application/x-www-form-urlencoded">
-                            <div class="col-md-2 col-6">
-                                <select class="form-select form-select-sm" name="ordernar_por">
-                                    <option value="pessoa_nome" <?php echo ($ordernar_por == 'orgao_nome') ? 'selected' : ''; ?>>Nome</option>
-                                    <option value="pessoa_adicionada_em" <?php echo ($ordernar_por == 'pessoa_adicionada_em') ? 'selected' : ''; ?>>Data de criação</option>
-                                    <option value="pessoa_atualizada_em" <?php echo ($ordernar_por == 'pessoa_atualizada_em') ? 'selected' : ''; ?>>Última atualização</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2 col-6">
-                                <select class="form-select form-select-sm" name="ordem">
-                                    <option value="ASC" <?php echo ($ordem == 'ASC') ? 'selected' : ''; ?>>Crescente</option>
-                                    <option value="DESC" <?php echo ($ordem == 'DESC') ? 'selected' : ''; ?>>Decrescente</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 col-10">
-                                <input type="text" class="form-control form-control-sm" name="termo" placeholder="Buscar..." value="<?php echo $termo; ?>">
-                            </div>
-                            <div class="col-md-4 col-2">
-                                <button type="submit" class="btn btn-success btn-sm" name="btn_buscar" onclick="this.name='';"><i class="fa-solid fa-magnifying-glass"></i></button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="card shadow-sm">
-                    <div class="card-body p-2">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover table-bordered mb-0 custom_table">
-                                <thead>
-                                    <tr>
-                                        <td style="white-space: nowrap;">Cargo</td>
-                                        <td style="white-space: nowrap;">Email</td>
-                                        <td style="white-space: nowrap;">Aniversário</td>
-                                        <td style="white-space: nowrap;">Situação</td>
-                                        <td style="white-space: nowrap;">Cargo</td>
-                                        <td style="white-space: nowrap;">Família</td>
-                                        <td style="white-space: nowrap;">Criada em</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    $busca = $pessoaController->listar($termo, $ordernar_por,  $ordem);
-                                    if ($busca['status'] == 'success') {
-                                        foreach ($busca['dados'] as $pessoa) {
-                                            echo '<tr>';
-                                            echo '<td style="white-space: nowrap; "><a href="editar-pessoa.php?pessoa=' . $pessoa['pessoa_id'] . '">' . $pessoa['pessoa_nome'] . '</a></td>';
-                                            echo '<td style="white-space: nowrap; ">' . $pessoa['pessoa_email'] . '</td>';
-                                            echo '<td style="white-space: nowrap; ">' . date('d/m', strtotime($pessoa['pessoa_aniversario'])) . '</td>';
-                                            echo '<td style="white-space: nowrap; ">' . $pessoa['situacao_nome'] . '</td>';
-                                            echo '<td style="white-space: nowrap; ">' . $pessoa['cargo_nome'] . '</td>';
-                                            echo '<td style="white-space: nowrap; ">' . $pessoa['familia_nome'] . '</td>';
-                                            echo '<td style="white-space: nowrap; ">' . date('d/m/Y | H:i', strtotime($pessoa['pessoa_adicionada_em'])) . '</td>';
-                                            echo '</tr>';
-                                        }
-                                    } else if ($busca['status'] == 'empty') {
-                                        echo '<tr><td colspan="7">' . $busca['message'] . '</td></tr>';
-                                    } else if ($busca['status'] == 'error') {
-                                        echo '<tr><td colspan="7">' . $busca['message'] . '</td></tr>';
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
@@ -309,7 +248,16 @@ $termo = $_GET['termo'] ?? null;
                 selectEstado.empty();
                 selectEstado.append('<option value="" selected>UF</option>');
                 data.forEach(estado => {
-                    selectEstado.append(`<option value="${estado.sigla}">${estado.sigla}</option>`);
+                    if (estado.sigla === "<?php echo $buscaPessoa['dados']['pessoa_estado'] ?>") {
+                        setTimeout(function() {
+                            selectEstado.append(`<option value="${estado.sigla}" selected>${estado.sigla}</option>`).change();
+                        }, 500);
+
+                    } else {
+                        setTimeout(function() {
+                            selectEstado.append(`<option value="${estado.sigla}">${estado.sigla}</option>`);
+                        }, 500);
+                    }
                 });
             });
         }
@@ -320,7 +268,11 @@ $termo = $_GET['termo'] ?? null;
                 selectMunicipio.empty();
                 selectMunicipio.append('<option value="" selected>Município</option>');
                 data.forEach(municipio => {
-                    selectMunicipio.append(`<option value="${municipio.nome}">${municipio.nome}</option>`);
+                    if (municipio.nome === "<?php echo $buscaPessoa['dados']['pessoa_municipio'] ?>") {
+                        selectMunicipio.append(`<option value="${municipio.nome}" selected>${municipio.nome}</option>`);
+                    } else {
+                        selectMunicipio.append(`<option value="${municipio.nome}">${municipio.nome}</option>`);
+                    }
                 });
             });
         }
@@ -349,7 +301,7 @@ $termo = $_GET['termo'] ?? null;
 
             if (window.confirm("Você realmente deseja inserir uma nova família?")) {
                 window.location.href = "familias.php";
-            } else {
+            }else{
                 return false;
             }
 
@@ -365,10 +317,9 @@ $termo = $_GET['termo'] ?? null;
 
 
         $('#btn-cargos').click(function() {
-
             if (window.confirm("Você realmente deseja inserir um novo cargo?")) {
                 window.location.href = "cargos.php";
-            } else {
+            }else{
                 return false;
             }
 
@@ -386,12 +337,11 @@ $termo = $_GET['termo'] ?? null;
 
             if (window.confirm("Você realmente deseja inserir uma nova situação?")) {
                 window.location.href = "pessoas-situacoes.php";
-            } else {
+            }else{
                 return false;
             }
 
         });
-
 
         $('#file-button').on('click', function() {
             $('#file-input').click();

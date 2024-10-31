@@ -2,14 +2,19 @@
 
 require_once dirname(__DIR__) . '/models/PessoaModel.php';
 require_once dirname(__DIR__) . '/core/Logger.php';
+require_once dirname(__DIR__) . '/core/UploadFile.php';
 
 class PessoaController {
     private $pessoaModel;
     private $logger;
+    private $uploadFile;
+    private $pasta_foto;
 
     public function __construct() {
         $this->pessoaModel = new PessoaModel();
         $this->logger = new Logger();
+        $this->pasta_foto = '/public/arquivos/fotos_pessoas/';
+        $this->uploadFile = new UploadFile();
     }
 
     public function criar($dados) {
@@ -62,11 +67,28 @@ class PessoaController {
             }
         }
 
+        if (isset($dados['foto']['tmp_name']) && !empty($dados['foto']['tmp_name'])) {
+            $uploadResult = $this->uploadFile->salvarArquivo('..' . $this->pasta_foto, $dados['foto']);
+            if ($uploadResult['status'] == 'upload_ok') {
+                $dados['pessoa_foto'] = $this->pasta_foto . $uploadResult['filename'];
+            } else {
+                if ($uploadResult['status'] == 'file_not_permitted') {
+                    return ['status' => 'file_not_permitted', 'message' => 'Tipo de arquivo não permitido', 'permitted_files' => $uploadResult['permitted_files']];
+                }
+                if ($uploadResult['status'] == 'file_too_large') {
+                    return ['status' => 'file_too_large', 'message' => 'O arquivo deve ter no máximo ' . $uploadResult['maximun_size']];
+                }
+                if ($uploadResult['status'] == 'error') {
+                    return ['status' => 'error', 'message' => 'Erro ao fazer upload.'];
+                }
+            }
+        }
+
         $dados['pessoa_nome'] = $this->sanitize($dados['pessoa_nome']);
         $dados['pessoa_cpf'] = $this->sanitize($dados['pessoa_cpf']);
         $dados['pessoa_email'] = $this->sanitize($dados['pessoa_email']);
         $dados['pessoa_aniversario'] = $this->sanitize($dados['pessoa_aniversario']);
-        $dados['pessoa_foto'] = isset($dados['pessoa_foto']) ? $this->sanitize($dados['pessoa_foto']) : null;
+        $dados['pessoa_foto'] = isset($dados['pessoa_foto']) ? $dados['pessoa_foto'] : null;
         $dados['pessoa_familia'] = isset($dados['pessoa_familia']) ? (int) $dados['pessoa_familia'] : null;
         $dados['pessoa_informacoes'] = isset($dados['pessoa_informacoes']) ? $this->sanitize($dados['pessoa_informacoes']) : null;
         $dados['pessoa_endereco'] = isset($dados['pessoa_endereco']) ? $this->sanitize($dados['pessoa_endereco']) : null;
@@ -97,9 +119,6 @@ class PessoaController {
 
     public function atualizar($id, $dados) {
         // Validações
-        if (!is_numeric($id) || $id <= 0) {
-            return ['status' => 'bad_request', 'message' => 'ID inválido.'];
-        }
         if (empty($dados['pessoa_nome']) || strlen($dados['pessoa_nome']) > 255) {
             return ['status' => 'bad_request', 'message' => 'Nome da pessoa inválido.'];
         }
@@ -109,16 +128,24 @@ class PessoaController {
         if (empty($dados['pessoa_email']) || !filter_var($dados['pessoa_email'], FILTER_VALIDATE_EMAIL)) {
             return ['status' => 'bad_request', 'message' => 'E-mail inválido.'];
         }
-        if (empty($dados['pessoa_aniversario']) || !DateTime::createFromFormat('Y-m-d', $dados['pessoa_aniversario'])) {
+
+        if (empty($dados['pessoa_aniversario']) || !preg_match('/^\d{2}\/\d{2}$/', $dados['pessoa_aniversario'])) {
             return ['status' => 'bad_request', 'message' => 'Data de aniversário inválida.'];
         }
+
+        list($dia, $mes) = explode('/', $dados['pessoa_aniversario']);
+        if (!checkdate($mes, $dia, 2000)) {
+            return ['status' => 'bad_request', 'message' => 'Data de aniversário inválida.'];
+        }
+        $dados['pessoa_aniversario'] = sprintf('2000-%02d-%02d', $mes, $dia);
+
         if (empty($dados['pessoa_municipio']) || strlen($dados['pessoa_municipio']) > 50) {
             return ['status' => 'bad_request', 'message' => 'Município inválido.'];
         }
         if (empty($dados['pessoa_estado']) || strlen($dados['pessoa_estado']) !== 2) {
             return ['status' => 'bad_request', 'message' => 'Estado inválido.'];
         }
-        if (!isset($dados['pessoa_batizada_local'])) {
+        if (empty($dados['pessoa_batizada_local'])) {
             return ['status' => 'bad_request', 'message' => 'Informação sobre batismo é obrigatória.'];
         }
         if (empty($dados['pessoa_cargo'])) {
@@ -128,12 +155,43 @@ class PessoaController {
             return ['status' => 'bad_request', 'message' => 'Situação é obrigatória.'];
         }
 
+        foreach (['pessoa_data_conversao', 'pessoa_data_batismo'] as $campo) {
+            if (!empty($dados[$campo]) && preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $dados[$campo])) {
+                list($dia, $mes, $ano) = explode('/', $dados[$campo]);
+                if (!checkdate($mes, $dia, $ano)) {
+                    return ['status' => 'bad_request', 'message' => "Data de $campo inválida."];
+                }
+                $dados[$campo] = sprintf('%04d-%02d-%02d', $ano, $mes, $dia);
+            } else {
+                $dados[$campo] = null;
+            }
+        }
+
+        if (isset($dados['foto']['tmp_name']) && !empty($dados['foto']['tmp_name'])) {
+            $uploadResult = $this->uploadFile->salvarArquivo('..' . $this->pasta_foto, $dados['foto']);
+            if ($uploadResult['status'] == 'upload_ok') {
+                $dados['pessoa_foto'] = $this->pasta_foto . $uploadResult['filename'];
+            } else {
+                if ($uploadResult['status'] == 'file_not_permitted') {
+                    return ['status' => 'file_not_permitted', 'message' => 'Tipo de arquivo não permitido', 'permitted_files' => $uploadResult['permitted_files']];
+                }
+                if ($uploadResult['status'] == 'file_too_large') {
+                    return ['status' => 'file_too_large', 'message' => 'O arquivo deve ter no máximo ' . $uploadResult['maximun_size']];
+                }
+                if ($uploadResult['status'] == 'error') {
+                    return ['status' => 'error', 'message' => 'Erro ao fazer upload.'];
+                }
+            }
+        } else {
+            $dados['pessoa_foto'] = null;
+        }
+
         // Sanitização
         $dados['pessoa_nome'] = $this->sanitize($dados['pessoa_nome']);
         $dados['pessoa_cpf'] = $this->sanitize($dados['pessoa_cpf']);
         $dados['pessoa_email'] = $this->sanitize($dados['pessoa_email']);
         $dados['pessoa_aniversario'] = $this->sanitize($dados['pessoa_aniversario']);
-        $dados['pessoa_foto'] = isset($dados['pessoa_foto']) ? $this->sanitize($dados['pessoa_foto']) : null;
+        $dados['pessoa_foto'] = isset($dados['pessoa_foto']) ? $dados['pessoa_foto'] : '';
         $dados['pessoa_familia'] = isset($dados['pessoa_familia']) ? (int) $dados['pessoa_familia'] : null;
         $dados['pessoa_informacoes'] = isset($dados['pessoa_informacoes']) ? $this->sanitize($dados['pessoa_informacoes']) : null;
         $dados['pessoa_endereco'] = isset($dados['pessoa_endereco']) ? $this->sanitize($dados['pessoa_endereco']) : null;
@@ -204,9 +262,13 @@ class PessoaController {
         }
 
         try {
-            $result = $this->pessoaModel->apagar($id);
+            $result = $this->buscar($id);
+            $resultDelete = $this->pessoaModel->apagar($id);
 
-            if ($result) {
+            if ($resultDelete) {
+                if ($result['dados']['pessoa_foto'] != null) {
+                    unlink('..' . $result['dados']['pessoa_foto']);
+                }
                 return ['status' => 'success', 'message' => 'Pessoa excluída com sucesso.'];
             } else {
                 return ['status' => 'error', 'message' => 'Pessoa não encontrada.'];
@@ -216,6 +278,8 @@ class PessoaController {
             return ['status' => 'error', 'message' => 'Erro interno no servidor.', 'error' => $e->getMessage()];
         }
     }
+
+
 
     private function sanitize($data) {
         return htmlspecialchars(strip_tags(trim($data)));

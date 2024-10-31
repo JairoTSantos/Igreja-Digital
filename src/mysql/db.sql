@@ -23,7 +23,7 @@ CREATE TABLE pessoas (
     -- DADOS ECLESIÁSTICOS
     pessoa_data_conversao DATE DEFAULT NULL, -- Data em que a pessoa se converteu.
     pessoa_data_batismo DATE DEFAULT NULL, -- Data de batismo da pessoa, se aplicável.
-    pessoa_batizada_local TINYINT(1) NOT NULL, -- Indica se foi batizada na PIB (1), outro lugar (0) ou na foi batizado (3).
+    pessoa_batizada_local TINYINT(1) NOT NULL, -- Indica se foi batizada na PIB (1), outro lugar (2) ou na foi batizado (3).
 
     -- DADOS ADMINISTRATIVOS
     pessoa_cargo INT NOT NULL, -- Referência ao cargo da pessoa (se aplicável).
@@ -128,4 +128,8 @@ FOREIGN KEY (pessoa_cargo) REFERENCES cargos(cargo_id) ON DELETE RESTRICT ON UPD
 -- Adicionando chave estrangeira na tabela 'pessoas' para relacionar com 'familia'
 ALTER TABLE pessoas
 ADD CONSTRAINT fk_pessoas_familia
-FOREIGN KEY (pessoa_familia) REFERENCES familia(familia_id) ON DELETE SET NULL ON UPDATE NO ACTION;
+FOREIGN KEY (pessoa_familia) REFERENCES familia(familia_id) ON DELETE RESTRICT ON UPDATE NO ACTION;
+
+-- CRIAR VIEW pessoas
+
+CREATE VIEW view_pessoas AS SELECT * FROM pessoas INNER JOIN cargos ON pessoas.pessoa_cargo = cargos.cargo_id INNER JOIN pessoas_situacoes ON pessoas.pessoa_situacao = pessoas_situacoes.situacao_id INNER JOIN familia ON pessoas.pessoa_familia = familia.familia_id;

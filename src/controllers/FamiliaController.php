@@ -103,7 +103,9 @@ class FamiliaController {
                 return ['status' => 'error', 'message' => 'Família não encontrada.'];
             }
         } catch (PDOException $e) {
-            // Aqui você pode adicionar tratamento para erros específicos, se necessário
+            if (isset($e->errorInfo[1]) && $e->errorInfo[1] === 1451) {
+                return ['status' => 'delete_conflict', 'message' => 'Esse cargo não pode ser removido.'];
+            }
             $this->logger->novoLog('familia_error', $e->getMessage());
             return ['status' => 'error', 'message' => 'Erro interno no servidor.', 'error' => $e->getMessage()];
         }

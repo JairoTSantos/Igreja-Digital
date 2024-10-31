@@ -25,6 +25,7 @@ class PessoaModel {
             :pessoa_cargo, :pessoa_situacao, :pessoa_informacoes
         )";
 
+
         $stmt = $this->db->prepare($query);
         $stmt->bindValue(':pessoa_nome', $dados['pessoa_nome']);
         $stmt->bindValue(':pessoa_cpf', $dados['pessoa_cpf']);
@@ -96,7 +97,7 @@ class PessoaModel {
         $colunaOrdenacao = in_array($colunaOrdenacao, $colunasPermitidas) ? $colunaOrdenacao : 'pessoa_nome';
         $ordem = in_array($ordem, $ordensPermitidas) ? $ordem : 'ASC';
 
-        $query = "SELECT * FROM pessoas";
+        $query = "SELECT * FROM view_pessoas";
         if (!empty($termo)) {
             $query .= " WHERE pessoa_nome LIKE :termo";
         }
@@ -113,7 +114,7 @@ class PessoaModel {
     }
 
     public function buscar($id) {
-        $query = "SELECT * FROM pessoas WHERE pessoa_id = :id";
+        $query = "SELECT * FROM view_pessoas WHERE pessoa_id = :id";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();

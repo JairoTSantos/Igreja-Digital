@@ -14,6 +14,8 @@ return [
         'endereco_igreja' => 'Setor leste lote 2',
         'municipio_igreja' => 'Gama',
         'estado_igreja' => 'DF',
-        'site_igreja' => 'pibgama.com.br'
+        'site_igreja' => 'pibgama.com.br',
+        'permitted_files' => ['png', 'jpg', 'jpeg', 'docx', 'pdf', 'doc', 'psd', 'ai', 'zip', 'mp4', 'mov'],
+        'maximum_file_size' => 100,
     ]
 ];
