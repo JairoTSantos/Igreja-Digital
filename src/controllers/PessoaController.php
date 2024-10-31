@@ -116,7 +116,6 @@ class PessoaController {
         }
     }
 
-
     public function atualizar($id, $dados) {
         // Validações
         if (empty($dados['pessoa_nome']) || strlen($dados['pessoa_nome']) > 255) {
@@ -186,7 +185,6 @@ class PessoaController {
             $dados['pessoa_foto'] = null;
         }
 
-        // Sanitização
         $dados['pessoa_nome'] = $this->sanitize($dados['pessoa_nome']);
         $dados['pessoa_cpf'] = $this->sanitize($dados['pessoa_cpf']);
         $dados['pessoa_email'] = $this->sanitize($dados['pessoa_email']);
@@ -220,7 +218,6 @@ class PessoaController {
             return ['status' => 'error', 'message' => 'Erro interno no servidor.', 'error' => $e->getMessage()];
         }
     }
-
 
     public function listar($termo = '', $colunaOrdenacao = 'pessoa_nome', $ordem = 'ASC') {
         try {
@@ -278,8 +275,6 @@ class PessoaController {
             return ['status' => 'error', 'message' => 'Erro interno no servidor.', 'error' => $e->getMessage()];
         }
     }
-
-
 
     private function sanitize($data) {
         return htmlspecialchars(strip_tags(trim($data)));
