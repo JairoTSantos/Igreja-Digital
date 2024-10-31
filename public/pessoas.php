@@ -55,6 +55,7 @@ $termo = $_GET['termo'] ?? null;
                             <li><b>Data de Aniversário:</b> Data de nascimento (formato: dd/mm).</li>
                             <li><b>Município:</b> Município de residência.</li>
                             <li><b>Estado:</b> Sigla do estado (exemplo: SP, RJ).</li>
+                            <li><b>Foto:</b> Foto recente da pessoa, preferencialmente em formato JPG ou PNG, que deve apresentar o rosto de forma clara e legível.</li>
                         </ul>
                     </div>
 

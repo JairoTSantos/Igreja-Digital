@@ -87,9 +87,6 @@ if ($buscaPessoa['status'] == 'empty' || $buscaPessoa['status'] == 'error') {
 
                             $result = $pessoaController->atualizar($pessoaId, $dados);
 
-
-                            
-
                             if ($result['status'] == 'success') {
                                 echo '<div class="alert alert-success mb-2 py-1 px-2 custom_alert" role="alert">' . $result['message'] . '</div>';
                                 $buscaPessoa = $pessoaController->buscar($pessoaId);
