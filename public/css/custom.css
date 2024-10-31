@@ -39,3 +39,24 @@ a {
     font-size: 0.9em;
     font-weight: 600;
 }
+
+
+.card-background {
+    background-image: url('../img/blue-bg.jpeg');
+    background-size: cover;
+    background-position: center;
+    /* Para melhorar o contraste se a imagem for escura */
+    color: white;
+    font-size: 1em;
+    /* Defina a altura do card */
+}
+
+
+.card_description {
+    font-size: 0.9em;
+}
+
+.card-header {
+    font-size: 1.115em;
+    font-weight: 500;
+}

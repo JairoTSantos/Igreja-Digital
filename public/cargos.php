@@ -3,6 +3,11 @@
 require_once dirname(__DIR__) . '/src/controllers/CargoController.php';
 $cargoController = new CargoController();
 
+$ordernar_por = $_GET['ordernar_por'] ?? 'cargo_nome';
+$ordem = $_GET['ordem'] ?? 'asc';
+$termo = $_GET['termo'] ?? null;
+
+
 ?>
 
 <!DOCTYPE html>
@@ -28,15 +33,22 @@ $cargoController = new CargoController();
                         <a class="btn btn-primary btn-sm custom-nav " href="home.php" role="button"><i class="fa-solid fa-house"></i> Início</a>
                     </div>
                 </div>
+                <div class="card mb-2 card_description">
+                    <div class="card-header bg-primary text-white px-2 py-1  card-background">Cargos</div>
+                    <div class="card-body p-2">
+                        <p class="card-text mb-2">Gerencie os cargos da igreja de forma eficiente.</p>
+                        <p class="card-text mb-0">Por favor, insira o nome do cargo e uma breve descrição de suas responsabilidades. <b>Todos os campos são obrigatórios.</b></p>
+                    </div>
+                </div>
                 <div class="card shadow-sm mb-2">
                     <div class="card-body p-2">
 
                         <?php
                         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn_salvar'])) {
-                            
+
                             $dados = [
-                                'cargo_nome' => htmlspecialchars($_POST['cargo_nome'], ENT_QUOTES, 'UTF-8'),
-                                'cargo_descricao' => htmlspecialchars($_POST['cargo_descricao'], ENT_QUOTES, 'UTF-8'),
+                                'cargo_nome' => $_POST['cargo_nome'],
+                                'cargo_descricao' => $_POST['cargo_descricao'],
                             ];
 
                             $result = $cargoController->criar($dados);
@@ -62,6 +74,35 @@ $cargoController = new CargoController();
                         </form>
                     </div>
                 </div>
+
+                <div class="card shadow-sm mb-2">
+                    <div class="card-body p-2">
+
+                        <form class="row g-2 form_custom" method="GET" enctype="application/x-www-form-urlencoded">
+                            <div class="col-md-2 col-6">
+                                <select class="form-select form-select-sm" name="ordernar_por">
+                                    <option value="orgao_nome" <?php echo ($ordernar_por == 'orgao_nome') ? 'selected' : ''; ?>>Nome</option>
+                                    <option value="orgao_adicionado_em" <?php echo ($ordernar_por == 'orgao_adicionado_em') ? 'selected' : ''; ?>>Data de criação</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <select class="form-select form-select-sm" name="ordem">
+                                    <option value="ASC" <?php echo ($ordem == 'ASC') ? 'selected' : ''; ?>>Crescente</option>
+                                    <option value="DESC" <?php echo ($ordem == 'DESC') ? 'selected' : ''; ?>>Decrescente</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 col-10">
+                                <input type="text" class="form-control form-control-sm" name="termo" placeholder="Buscar..." value="<?php echo $termo; ?>">
+                            </div>
+
+                            <div class="col-md-4 col-2">
+                                <button type="submit" class="btn btn-success btn-sm" name="btn_buscar" onclick="this.name='';"><i class="fa-solid fa-magnifying-glass"></i></button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
                 <div class="card shadow-sm">
                     <div class="card-body p-2">
                         <div class="table-responsive">
@@ -75,7 +116,7 @@ $cargoController = new CargoController();
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $busca = $cargoController->listar();
+                                    $busca = $cargoController->listar($termo, $ordernar_por,  $ordem);
                                     if ($busca['status'] == 'success') {
                                         foreach ($busca['dados'] as $cargo) {
                                             echo '<tr>';
@@ -98,15 +139,8 @@ $cargoController = new CargoController();
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            setTimeout(function() {
-                $(".alert").fadeOut("slow");
-            }, 2000);
-        });
-    </script>
+    <?php include 'includes/footer.php' ?>
+
 </body>
 
 </html>

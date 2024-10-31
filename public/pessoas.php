@@ -12,6 +12,11 @@ $pessoaSituacaoController = new PessoaSituacaoController();
 require_once dirname(__DIR__) . '/src/controllers/FamiliaController.php';
 $familiaController = new FamiliaController();
 
+$ordernar_por = $_GET['ordernar_por'] ?? 'pessoa_nome';
+$ordem = $_GET['ordem'] ?? 'asc';
+$termo = $_GET['termo'] ?? null;
+
+
 ?>
 
 <!DOCTYPE html>
@@ -37,6 +42,34 @@ $familiaController = new FamiliaController();
                         <a class="btn btn-primary btn-sm custom-nav" href="home.php" role="button"><i class="fa-solid fa-house"></i> Início</a>
                     </div>
                 </div>
+
+                <div class="card mb-2 card_description">
+                    <div class="card-header bg-primary text-white px-2 py-1 card-background">Pessoas</div>
+                    <div class="card-body p-2">
+                        <p class="card-text mb-2">Gerencie as pessoas vinculadas à igreja.</p>
+                        <p class="card-text mb-2">
+                            Por favor, preencha os campos obrigatórios:
+                        <ul class="mb-1">
+                            <li><b>Nome:</b> Nome completo da pessoa.</li>
+                            <li><b>CPF:</b> CPF da pessoa (formato: 123.456.789-09).</li>
+                            <li><b>E-mail:</b> Endereço de e-mail atualizado.</li>
+                            <li><b>Data de Aniversário:</b> Data de nascimento (formato: dd/mm).</li>
+                            <li><b>Município:</b> Município de residência.</li>
+                            <li><b>Estado:</b> Sigla do estado (exemplo: SP, RJ).</li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div class="card mb-2 shadow-sm">
+                    <div class="card-body p-1">
+                        <div class="btn-group" role="group" aria-label="Navegação">
+                            <a class="btn btn-outline-primary btn-sm custom-nav" href="cargos.php" role="button" id=btn-cargos><i class="fa-solid fa-plus"></i> cargo</a>
+                            <a class="btn btn-outline-secondary btn-sm custom-nav" href="familias.php" role="button" id=btn-familias><i class="fa-solid fa-plus"></i> família</a>
+                            <a class="btn btn-outline-success btn-sm custom-nav" href="pessoas-situacoes.php" role="button" id=btn-situacoes><i class="fa-solid fa-plus"></i> situação</a>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card shadow-sm mb-2">
                     <div class="card-body p-2">
 
@@ -44,27 +77,26 @@ $familiaController = new FamiliaController();
                         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn_salvar'])) {
 
                             $dados = [
-                                'pessoa_nome' => !empty($_POST['pessoa_nome']) ? htmlspecialchars($_POST['pessoa_nome'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_cpf' => !empty($_POST['pessoa_cpf']) ? htmlspecialchars($_POST['pessoa_cpf'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_email' => !empty($_POST['pessoa_email']) ? htmlspecialchars($_POST['pessoa_email'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_aniversario' => !empty($_POST['pessoa_aniversario']) ? htmlspecialchars($_POST['pessoa_aniversario'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_familia' => !empty($_POST['pessoa_familia']) ? htmlspecialchars($_POST['pessoa_familia'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_endereco' => !empty($_POST['pessoa_endereco']) ? htmlspecialchars($_POST['pessoa_endereco'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_municipio' => !empty($_POST['pessoa_municipio']) ? htmlspecialchars($_POST['pessoa_municipio'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_estado' => !empty($_POST['pessoa_estado']) ? htmlspecialchars($_POST['pessoa_estado'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_telefone_celular' => !empty($_POST['pessoa_telefone_celular']) ? htmlspecialchars($_POST['pessoa_telefone_celular'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_telefone_fixo' => !empty($_POST['pessoa_telefone_fixo']) ? htmlspecialchars($_POST['pessoa_telefone_fixo'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_instagram' => !empty($_POST['pessoa_instagram']) ? htmlspecialchars($_POST['pessoa_instagram'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_facebook' => !empty($_POST['pessoa_facebook']) ? htmlspecialchars($_POST['pessoa_facebook'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_data_conversao' => !empty($_POST['pessoa_data_conversao']) ? htmlspecialchars($_POST['pessoa_data_conversao'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_data_batismo' => !empty($_POST['pessoa_data_batismo']) ? htmlspecialchars($_POST['pessoa_data_batismo'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_batizada_local' => !empty($_POST['pessoa_batizada_local']) ? htmlspecialchars($_POST['pessoa_batizada_local'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_cargo' => !empty($_POST['pessoa_cargo']) ? htmlspecialchars($_POST['pessoa_cargo'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_situacao' => !empty($_POST['pessoa_situacao']) ? htmlspecialchars($_POST['pessoa_situacao'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_informacoes' => !empty($_POST['pessoa_informacoes']) ? htmlspecialchars($_POST['pessoa_informacoes'], ENT_QUOTES, 'UTF-8') : null,
-                                'pessoa_foto' => !empty($_POST['pessoa_foto']) ? htmlspecialchars($_POST['pessoa_foto'], ENT_QUOTES, 'UTF-8') : null,
+                                'pessoa_nome' => $_POST['pessoa_nome'] ?? null,
+                                'pessoa_cpf' => $_POST['pessoa_cpf'] ?? null,
+                                'pessoa_email' => $_POST['pessoa_email'] ?? null,
+                                'pessoa_aniversario' => $_POST['pessoa_aniversario'] ?? null,
+                                'pessoa_familia' => $_POST['pessoa_familia'] ?? null,
+                                'pessoa_endereco' => $_POST['pessoa_endereco'] ?? null,
+                                'pessoa_municipio' => $_POST['pessoa_municipio'] ?? null,
+                                'pessoa_estado' => $_POST['pessoa_estado'] ?? null,
+                                'pessoa_telefone_celular' => $_POST['pessoa_telefone_celular'] ?? null,
+                                'pessoa_telefone_fixo' => $_POST['pessoa_telefone_fixo'] ?? null,
+                                'pessoa_instagram' => $_POST['pessoa_instagram'] ?? null,
+                                'pessoa_facebook' => $_POST['pessoa_facebook'] ?? null,
+                                'pessoa_data_conversao' => $_POST['pessoa_data_conversao'] ?? null,
+                                'pessoa_data_batismo' => $_POST['pessoa_data_batismo'] ?? null,
+                                'pessoa_batizada_local' => $_POST['pessoa_batizada_local'] ?? null,
+                                'pessoa_cargo' => $_POST['pessoa_cargo'] ?? null,
+                                'pessoa_situacao' => $_POST['pessoa_situacao'] ?? null,
+                                'pessoa_informacoes' => $_POST['pessoa_informacoes'] ?? null,
+                                'pessoa_foto' => $_POST['pessoa_foto'] ?? null,
                             ];
-
 
                             $result = $pessoaController->criar($dados);
 
@@ -93,9 +125,10 @@ $familiaController = new FamiliaController();
                                 <select class="form-select form-select-sm" name="pessoa_familia" id="familia">
                                     <?php
                                     $busca_familia = $familiaController->listar();
+
                                     if ($busca_familia['status'] == 'success') {
                                         foreach ($busca_familia['dados'] as $familia) {
-                                            if ($cargo['familia_id'] == 1) {
+                                            if ($familia['familia_id'] == 1) {
                                                 echo '<option value="' . $familia['familia_id'] . '" selected>' . $familia['familia_nome'] . '</option>';
                                             } else {
                                                 echo '<option value="' . $familia['familia_id'] . '">' . $familia['familia_nome'] . '</option>';
@@ -135,14 +168,14 @@ $familiaController = new FamiliaController();
                                 <input type="text" class="form-control form-control-sm" name="pessoa_data_conversao" data-mask="00/00/0000" placeholder="Data de Conversão (dd/mm/aaaa)">
                             </div>
                             <div class="col-md-2 col-12">
-                                <input type="texte" class="form-control form-control-sm" name="pessoa_data_batismo" data-mask="00/00/0000" placeholder="Data de Batismo (dd/mm/aaaa)">
-                            </div>
-                            <div class="col-md-2 col-12">
                                 <select class="form-select form-select-sm" name="pessoa_batizada_local">
                                     <option value="1">Batizado na PIB</option>
                                     <option value="0">Batizado em outra igreja</option>
                                     <option value="3" selected>Não foi batizado</option>
                                 </select>
+                            </div>
+                            <div class="col-md-2 col-12">
+                                <input type="texte" class="form-control form-control-sm" name="pessoa_data_batismo" data-mask="00/00/0000" placeholder="Data de Batismo (dd/mm/aaaa)">
                             </div>
                             <div class="col-md-4 col-12">
                                 <select class="form-select form-select-sm" name="pessoa_cargo" id="cargo" required>
@@ -187,18 +220,74 @@ $familiaController = new FamiliaController();
                         </form>
                     </div>
                 </div>
+                <div class="card shadow-sm mb-2">
+                    <div class="card-body p-2">
+                        <form class="row g-2 form_custom" method="GET" enctype="application/x-www-form-urlencoded">
+                            <div class="col-md-2 col-6">
+                                <select class="form-select form-select-sm" name="ordernar_por">
+                                    <option value="pessoa_nome" <?php echo ($ordernar_por == 'orgao_nome') ? 'selected' : ''; ?>>Nome</option>
+                                    <option value="pessoa_adicionada_em" <?php echo ($ordernar_por == 'pessoa_adicionada_em') ? 'selected' : ''; ?>>Data de criação</option>
+                                    <option value="pessoa_atualizada_em" <?php echo ($ordernar_por == 'pessoa_atualizada_em') ? 'selected' : ''; ?>>Última atualização</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <select class="form-select form-select-sm" name="ordem">
+                                    <option value="ASC" <?php echo ($ordem == 'ASC') ? 'selected' : ''; ?>>Crescente</option>
+                                    <option value="DESC" <?php echo ($ordem == 'DESC') ? 'selected' : ''; ?>>Decrescente</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 col-10">
+                                <input type="text" class="form-control form-control-sm" name="termo" placeholder="Buscar..." value="<?php echo $termo; ?>">
+                            </div>
+                            <div class="col-md-4 col-2">
+                                <button type="submit" class="btn btn-success btn-sm" name="btn_buscar" onclick="this.name='';"><i class="fa-solid fa-magnifying-glass"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-body p-2">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover table-bordered mb-0 custom_table">
+                                <thead>
+                                    <tr>
+                                        <td style="white-space: nowrap;">Cargo</td>
+                                        <td style="white-space: nowrap;">Email</td>
+                                        <td style="white-space: nowrap;">Criada em</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $busca = $pessoaController->listar($termo, $ordernar_por,  $ordem);
+                                    if ($busca['status'] == 'success') {
+                                        foreach ($busca['dados'] as $pessoa) {
+                                            echo '<tr>';
+                                            echo '<td style="white-space: nowrap; "><a href="editar-cargo.php?cargo=' . $pessoa['pessoa_id'] . '">' . $pessoa['pessoa_nome'] . '</a></td>';
+                                            echo '<td style="white-space: nowrap; ">' . $pessoa['pessoa_email'] . '</td>';
+                                            echo '<td style="white-space: nowrap; ">' . date('d/m/Y | H:i', strtotime($pessoa['pessoa_adicionada_em'])) . '</td>';
+                                            echo '</tr>';
+                                        }
+                                    } else if ($busca['status'] == 'empty') {
+                                        echo '<tr><td colspan="3">' . $busca['message'] . '</td></tr>';
+                                    } else if ($busca['status'] == 'error') {
+                                        echo '<tr><td colspan="3">' . $busca['message'] . '</td></tr>';
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <?php include 'includes/footer.php' ?>
+
     <script>
         $(document).ready(function() {
             carregarEstados();
-            setTimeout(function() {
-                $(".alert").fadeOut("slow");
-            }, 2000);
         });
 
 
@@ -244,6 +333,14 @@ $familiaController = new FamiliaController();
             }
         });
 
+        $('#btn-familias').click(function() {
+
+            if (window.confirm("Você realmente deseja inserir uma nova família?")) {
+                window.location.href = "familias.php";
+            }
+
+        });
+
         $('#cargo').change(function() {
             if ($('#cargo').val() == '+') {
                 if (window.confirm("Você realmente deseja inserir um novo cargo?")) {
@@ -252,12 +349,29 @@ $familiaController = new FamiliaController();
             }
         });
 
+
+        $('#btn-cargos').click(function() {
+
+            if (window.confirm("Você realmente deseja inserir um novo cargo?")) {
+                window.location.href = "cargos.php";
+            }
+
+        });
+
         $('#situacao').change(function() {
             if ($('#situacao').val() == '+') {
                 if (window.confirm("Você realmente deseja inserir uma nova situação?")) {
                     window.location.href = "pessoas-situacoes.php";
                 }
             }
+        });
+
+        $('#situacoes').click(function() {
+
+            if (window.confirm("Você realmente deseja inserir uma nova situação?")) {
+                window.location.href = "pessoas-situacoes.php";
+            }
+
         });
     </script>
 </body>

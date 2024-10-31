@@ -8,6 +8,7 @@ $buscaCargo = $cargoController->buscar($cargoId);
 
 if ($buscaCargo['status'] == 'empty' || $buscaCargo['status'] == 'error') {
     header('Location: cargos.php');
+    exit;
 }
 
 ?>
@@ -45,8 +46,8 @@ if ($buscaCargo['status'] == 'empty' || $buscaCargo['status'] == 'error') {
                         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn_atualizar'])) {
 
                             $dados = [
-                                'cargo_nome' => htmlspecialchars($_POST['cargo_nome'], ENT_QUOTES, 'UTF-8'),
-                                'cargo_descricao' => htmlspecialchars($_POST['cargo_descricao'], ENT_QUOTES, 'UTF-8'),
+                                'cargo_nome' => $_POST['cargo_nome'],
+                                'cargo_descricao' => $_POST['cargo_descricao'],
                             ];
 
                             $result = $cargoController->atualizar($cargoId, $dados);
@@ -93,30 +94,7 @@ if ($buscaCargo['status'] == 'empty' || $buscaCargo['status'] == 'error') {
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            setTimeout(function() {
-                $(".alert").fadeOut("slow");
-            }, 2000);
-
-            $('button[name="btn_apagar"]').on('click', function(event) {
-                const confirmacao = confirm("Tem certeza que deseja apagar?");
-                if (!confirmacao) {
-                    event.preventDefault();
-                }
-            });
-
-            $('button[name="btn_atualizar"]').on('click', function(event) {
-                const confirmacao = confirm("Tem certeza que deseja atualizar?");
-                if (!confirmacao) {
-                    event.preventDefault();
-                }
-            });
-        });
-    </script>
-    
+    <?php include 'includes/footer.php' ?>
 </body>
 
 </html>

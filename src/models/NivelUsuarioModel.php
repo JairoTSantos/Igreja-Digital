@@ -28,9 +28,26 @@ class NivelUsuarioModel {
         return $stmt->rowCount() > 0;
     }
 
-    public function listar() {
-        $query = "SELECT * FROM niveis_usuarios ORDER BY nivel_nome ASC";
+    public function listar($termo, $colunaOrdenacao, $ordem) {
+
+        $colunasPermitidas = ['nivel_nome', 'nivel_id', 'nivel_adicionado_em'];
+        $ordensPermitidas = ['ASC', 'DESC'];
+
+        $colunaOrdenacao = in_array($colunaOrdenacao, $colunasPermitidas) ? $colunaOrdenacao : 'nivel_nome';
+        $ordem = in_array($ordem, $ordensPermitidas) ? $ordem : 'ASC';
+
+        $query = "SELECT * FROM niveis_usuarios";
+        if (!empty($termo)) {
+            $query .= " WHERE nivel_nome LIKE :termo";
+        }
+        $query .= " ORDER BY {$colunaOrdenacao} {$ordem}";
+
         $stmt = $this->db->prepare($query);
+
+        if (!empty($termo)) {
+            $stmt->bindValue(':termo', '%' . $termo . '%', PDO::PARAM_STR);
+        }
+
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

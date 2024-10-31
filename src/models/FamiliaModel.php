@@ -26,12 +26,38 @@ class FamiliaModel {
         return $stmt->rowCount() > 0;
     }
 
-    public function listar() {
+    public function listar2() {
         $query = "SELECT * FROM familia ORDER BY familia_nome ASC";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    
+    public function listar($termo, $colunaOrdenacao, $ordem) {
+
+        $colunasPermitidas = ['familia_nome', 'familia_id', 'familia_adicionada_em'];
+        $ordensPermitidas = ['ASC', 'DESC'];
+
+        $colunaOrdenacao = in_array($colunaOrdenacao, $colunasPermitidas) ? $colunaOrdenacao : 'familia_nome';
+        $ordem = in_array($ordem, $ordensPermitidas) ? $ordem : 'ASC';
+
+        $query = "SELECT * FROM familia";
+        if (!empty($termo)) {
+            $query .= " WHERE familia_nome LIKE :termo";
+        }
+        $query .= " ORDER BY {$colunaOrdenacao} {$ordem}";
+
+        $stmt = $this->db->prepare($query);
+
+        if (!empty($termo)) {
+            $stmt->bindValue(':termo', '%' . $termo . '%', PDO::PARAM_STR);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 
     public function buscar($id) {
         $query = "SELECT * FROM familia WHERE familia_id = :id";

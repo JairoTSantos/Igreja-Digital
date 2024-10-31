@@ -88,9 +88,26 @@ class PessoaModel {
         return $stmt->rowCount() > 0;
     }
 
-    public function listar() {
-        $query = "SELECT * FROM pessoas ORDER BY pessoa_nome ASC";
+    public function listar($termo, $colunaOrdenacao, $ordem) {
+
+        $colunasPermitidas = ['pessoa_nome', 'pessoa_id', 'pessoa_adicionado_em'];
+        $ordensPermitidas = ['ASC', 'DESC'];
+
+        $colunaOrdenacao = in_array($colunaOrdenacao, $colunasPermitidas) ? $colunaOrdenacao : 'pessoa_nome';
+        $ordem = in_array($ordem, $ordensPermitidas) ? $ordem : 'ASC';
+
+        $query = "SELECT * FROM pessoas";
+        if (!empty($termo)) {
+            $query .= " WHERE pessoa_nome LIKE :termo";
+        }
+        $query .= " ORDER BY {$colunaOrdenacao} {$ordem}";
+
         $stmt = $this->db->prepare($query);
+
+        if (!empty($termo)) {
+            $stmt->bindValue(':termo', '%' . $termo . '%', PDO::PARAM_STR);
+        }
+
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

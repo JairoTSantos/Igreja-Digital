@@ -30,9 +30,26 @@ class CargoModel {
         return $stmt->rowCount() > 0;
     }
 
-    public function listar() {
-        $query = "SELECT * FROM cargos ORDER BY cargo_nome ASC";
+    public function listar($termo, $colunaOrdenacao, $ordem) {
+
+        $colunasPermitidas = ['cargo_nome', 'cargo_id', 'cargo_adicionado_em'];
+        $ordensPermitidas = ['ASC', 'DESC'];
+
+        $colunaOrdenacao = in_array($colunaOrdenacao, $colunasPermitidas) ? $colunaOrdenacao : 'cargo_nome';
+        $ordem = in_array($ordem, $ordensPermitidas) ? $ordem : 'ASC';
+
+        $query = "SELECT * FROM cargos";
+        if (!empty($termo)) {
+            $query .= " WHERE cargo_nome LIKE :termo";
+        }
+        $query .= " ORDER BY {$colunaOrdenacao} {$ordem}";
+
         $stmt = $this->db->prepare($query);
+
+        if (!empty($termo)) {
+            $stmt->bindValue(':termo', '%' . $termo . '%', PDO::PARAM_STR);
+        }
+
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
