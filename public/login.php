@@ -1,7 +1,9 @@
-<?php 
+<?php
 $pageTitle = 'Login';
 include dirname(__DIR__) . '/public/includes/header.php'; // Inclua o header apenas uma vez
 ?>
+
+
 
 <body class="login-screen">
     <div class="d-flex justify-content-center align-items-center vh-100">
@@ -27,4 +29,5 @@ include dirname(__DIR__) . '/public/includes/header.php'; // Inclua o header ape
     </div>
     <?php include dirname(__DIR__) . '/public/includes/footer.php'; ?>
 </body>
+
 </html>
