@@ -1,4 +1,7 @@
 <?php
+
+ob_start();
+
 $config = include dirname(__DIR__, 2) . '/config/config.php';
 $appConfig = $config;
 
