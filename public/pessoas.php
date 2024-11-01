@@ -327,11 +327,11 @@ $limiteGet = $_GET['limite'] ?? 10;
 
                         </div>
                         <nav aria-label="Page navigation">
-                            <ul class="pagination custom-pagination mb-0">
+                            <ul class="pagination custom-pagination d-flex flex-wrap mb-0">
                                 <?php if ($busca['total_paginas'] > 1) : ?>
                                     <li class="page-item <?= $paginaGet == 1 ? 'disabled' : '' ?>">
-                                        <a class="page-link" href="?pagina=1&ordernar_por=<?= $ordernar_por ?>&ordernar_por=<?= $ordernar_por ?>&ordem=<?= $ordem ?>&termo=<?= $termo ?>&filtro=<?= $filtro ?>&limite=<?= $limiteGet ?>" aria-label="Primeira">
-                                            <span aria-hidden="true">Primeira página</span>
+                                        <a class="page-link" href="?pagina=1&ordernar_por=<?= $ordernar_por ?>&ordem=<?= $ordem ?>&termo=<?= $termo ?>&filtro=<?= $filtro ?>&limite=<?= $limiteGet ?>" aria-label="Primeira">
+                                            <span aria-hidden="true">Primeira</span>
                                         </a>
                                     </li>
                                     <li class="page-item <?= $paginaGet == 1 ? 'disabled' : '' ?>">
@@ -353,7 +353,7 @@ $limiteGet = $_GET['limite'] ?? 10;
                                     </li>
                                     <li class="page-item <?= $paginaGet == $busca['total_paginas'] ? 'disabled' : '' ?>">
                                         <a class="page-link" href="?pagina=<?= $busca['total_paginas'] ?>&ordernar_por=<?= $ordernar_por ?>&ordem=<?= $ordem ?>&termo=<?= $termo ?>&filtro=<?= $filtro ?>&limite=<?= $limiteGet ?>" aria-label="Última">
-                                            <span aria-hidden="true">Última Página</span>
+                                            <span aria-hidden="true">Última</span>
                                         </a>
                                     </li>
                                 <?php endif; ?>
@@ -361,7 +361,6 @@ $limiteGet = $_GET['limite'] ?? 10;
                         </nav>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
