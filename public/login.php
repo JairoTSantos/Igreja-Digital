@@ -4,7 +4,6 @@ include dirname(__DIR__) . '/public/includes/header.php'; // Inclua o header ape
 ?>
 
 
-
 <body class="login-screen">
     <div class="d-flex justify-content-center align-items-center vh-100">
         <div class="centralizada text-center">
@@ -28,6 +27,7 @@ include dirname(__DIR__) . '/public/includes/header.php'; // Inclua o header ape
         </div>
     </div>
     <?php include dirname(__DIR__) . '/public/includes/footer.php'; ?>
+    
 </body>
 
 </html>
