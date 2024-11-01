@@ -15,6 +15,7 @@ $familiaController = new FamiliaController();
 $ordernar_por = $_GET['ordernar_por'] ?? 'pessoa_nome';
 $ordem = $_GET['ordem'] ?? 'asc';
 $termo = $_GET['termo'] ?? null;
+$filtro = $_GET['filtro'] ?? null;
 
 ?>
 
@@ -67,6 +68,7 @@ $termo = $_GET['termo'] ?? null;
                             <a class="btn btn-outline-secondary btn-sm custom-nav" href="familias.php" role="button" id=btn-familias><i class="fa-solid fa-plus"></i> família</a>
                             <a class="btn btn-outline-success btn-sm custom-nav" href="pessoas-situacoes.php" role="button" id=btn-situacoes><i class="fa-solid fa-plus"></i> situação</a>
                         </div>
+
                     </div>
                 </div>
 
@@ -241,7 +243,24 @@ $termo = $_GET['termo'] ?? null;
                                     <option value="DESC" <?php echo ($ordem == 'DESC') ? 'selected' : ''; ?>>Decrescente</option>
                                 </select>
                             </div>
-                            <div class="col-md-4 col-10">
+                            <div class="col-md-2 col-12">
+                                <select class="form-select form-select-sm" name="filtro" required>
+                                    <option value="0">Todos</option>
+                                    <?php
+                                    $busca_situacao = $pessoaSituacaoController->listar();
+                                    if ($busca_situacao['status'] == 'success') {
+                                        foreach ($busca_situacao['dados'] as $situacao) {
+                                            if ($situacao['situacao_id'] == $filtro) {
+                                                echo '<option value="' . $situacao['situacao_id'] . '" selected>' . $situacao['situacao_nome'] . '</option>';
+                                            } else {
+                                                echo '<option value="' . $situacao['situacao_id'] . '">' . $situacao['situacao_nome'] . '</option>';
+                                            }
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="col-md-2 col-10">
                                 <input type="text" class="form-control form-control-sm" name="termo" placeholder="Buscar..." value="<?php echo $termo; ?>">
                             </div>
                             <div class="col-md-4 col-2">
@@ -268,7 +287,7 @@ $termo = $_GET['termo'] ?? null;
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $busca = $pessoaController->listar($termo, $ordernar_por,  $ordem);
+                                    $busca = $pessoaController->listar($termo, $ordernar_por,  $ordem, $filtro);
                                     if ($busca['status'] == 'success') {
                                         foreach ($busca['dados'] as $pessoa) {
                                             echo '<tr>';

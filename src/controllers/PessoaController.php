@@ -219,20 +219,30 @@ class PessoaController {
         }
     }
 
-    public function listar($termo = '', $colunaOrdenacao = 'pessoa_nome', $ordem = 'ASC') {
+    public function listar($termo = '', $colunaOrdenacao = 'pessoa_nome', $ordem = 'ASC', $situacao = null) {
         try {
-            $result = $this->pessoaModel->listar($termo, $colunaOrdenacao, $ordem);
+            // Chama o método listar do modelo, passando o parâmetro $situacao
+            $result = $this->pessoaModel->listar($termo, $colunaOrdenacao, $ordem, $situacao);
 
             if (empty($result)) {
                 return ['status' => 'empty', 'message' => 'Nenhuma pessoa registrada.'];
             }
 
-            return ['status' => 'success', 'message' => count($result) . ' pessoa(s) encontrada(s).', 'dados' => $result];
+            return [
+                'status' => 'success',
+                'message' => count($result) . ' pessoa(s) encontrada(s).',
+                'dados' => $result
+            ];
         } catch (PDOException $e) {
             $this->logger->novoLog('pessoa_error', $e->getMessage());
-            return ['status' => 'error', 'message' => 'Erro interno no servidor.', 'error' => $e->getMessage()];
+            return [
+                'status' => 'error',
+                'message' => 'Erro interno no servidor.',
+                'error' => $e->getMessage()
+            ];
         }
     }
+
 
     public function buscar($id) {
         if (!is_numeric($id) || $id <= 0) {

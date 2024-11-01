@@ -47,19 +47,43 @@ if ($buscaPessoa['status'] == 'empty' || $buscaPessoa['status'] == 'error') {
                         <a class="btn btn-success btn-sm custom-nav" href="pessoas.php" role="button"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card shadow-sm mb-2 card-background">
+                            <div class="card-body p-2">
+                                <div class="row">
+                                    <div class="col-12 col-md-1">
+                                        <?php
+                                        if ($buscaPessoa['dados']['pessoa_foto'] || !empty($buscaPessoa['dados']['pessoa_foto'])) {
+                                            echo '<img src="..' . $buscaPessoa['dados']['pessoa_foto'] . '" class="img-thumbnail img-crop" alt="...">';
+                                        } else {
+                                            echo '<img src="img/not_found.jpg" class="img-thumbnail img-crop" alt="...">';
+                                        }
+                                        ?>
+                                    </div>
+                                    <div class="col-12 col-md-11 mt-2 ">
+                                        <h5 class="card-title"><?php echo $buscaPessoa['dados']['pessoa_nome']; ?></h5>
+                                        <p class="card-text mb-2"><i class="fa-solid fa-envelope"></i> <?php echo $buscaPessoa['dados']['pessoa_email']; ?></p>
+                                        <p class="card-text mb-2"><i class="fa-solid fa-mobile-screen"></i> <?php echo $buscaPessoa['dados']['pessoa_telefone_celular']; ?></p>
+                                        <p class="card-text mb-2"><i class="fa-solid fa-cake-candles"></i> <?php echo date('d/M', strtotime($buscaPessoa['dados']['pessoa_aniversario'])); ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="card mb-2 shadow-sm">
                     <div class="card-body p-1">
                         <div class="btn-group" role="group" aria-label="Navegação">
                             <a class="btn btn-outline-primary btn-sm custom-nav" href="cargos.php" role="button" id=btn-cargos><i class="fa-solid fa-plus"></i> cargo</a>
                             <a class="btn btn-outline-secondary btn-sm custom-nav" href="familias.php" role="button" id=btn-familias><i class="fa-solid fa-plus"></i> família</a>
                             <a class="btn btn-outline-success btn-sm custom-nav" href="pessoas-situacoes.php" role="button" id=btn-situacoes><i class="fa-solid fa-plus"></i> situação</a>
+                            <a class="btn btn-outline-danger btn-sm custom-nav" href="imprimir-ficha-pessoa.php" role="button" id=btn-situacoes><i class="fa-solid fa-print"></i> Imprimir</a>
                         </div>
                     </div>
                 </div>
-
                 <div class="card shadow-sm mb-2">
                     <div class="card-body p-2">
-
                         <?php
                         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn_atualizar'])) {
 
@@ -88,8 +112,12 @@ if ($buscaPessoa['status'] == 'empty' || $buscaPessoa['status'] == 'error') {
                             $result = $pessoaController->atualizar($pessoaId, $dados);
 
                             if ($result['status'] == 'success') {
-                                echo '<div class="alert alert-success mb-2 py-1 px-2 custom_alert" role="alert">' . $result['message'] . '</div>';
-                                $buscaPessoa = $pessoaController->buscar($pessoaId);
+                                echo '<div class="alert alert-success mb-2 py-1 px-2 custom_alert" role="alert">' . $result['message'] . ' Aguarde...</div>';
+                                echo '<script>
+                                        setTimeout(function(){
+                                            window.location.href = "editar-pessoa.php?pessoa=' . $pessoaId . '";
+                                        }, 1000);
+                                    </script>';
                             } else {
                                 echo '<div class="alert alert-danger mb-2 py-1 px-2 custom_alert" role="alert">' . $result['message'] . '</div>';
                             }
@@ -221,7 +249,7 @@ if ($buscaPessoa['status'] == 'empty' || $buscaPessoa['status'] == 'error') {
                             <div class="col-md-12 col-12">
                                 <textarea class="form-control form-control-sm" name="pessoa_informacoes" rows="5" placeholder="Informações da pessoa"><?php echo $buscaPessoa['dados']['pessoa_informacoes'] ?></textarea>
                             </div>
-                            <div class="col-md-4 col-6">
+                            <div class="col-md-4 col-12">
                                 <button type="submit" class="btn btn-success btn-sm" name="btn_atualizar"><i class="fa-regular fa-floppy-disk"></i> Atualizar</button>
                                 <button type="submit" class="btn btn-danger btn-sm" name="btn_apagar"><i class="fa-solid fa-trash-can"></i> Apagar</button>
                             </div>
@@ -298,7 +326,7 @@ if ($buscaPessoa['status'] == 'empty' || $buscaPessoa['status'] == 'error') {
 
             if (window.confirm("Você realmente deseja inserir uma nova família?")) {
                 window.location.href = "familias.php";
-            }else{
+            } else {
                 return false;
             }
 
@@ -316,7 +344,7 @@ if ($buscaPessoa['status'] == 'empty' || $buscaPessoa['status'] == 'error') {
         $('#btn-cargos').click(function() {
             if (window.confirm("Você realmente deseja inserir um novo cargo?")) {
                 window.location.href = "cargos.php";
-            }else{
+            } else {
                 return false;
             }
 
@@ -334,7 +362,7 @@ if ($buscaPessoa['status'] == 'empty' || $buscaPessoa['status'] == 'error') {
 
             if (window.confirm("Você realmente deseja inserir uma nova situação?")) {
                 window.location.href = "pessoas-situacoes.php";
-            }else{
+            } else {
                 return false;
             }
 

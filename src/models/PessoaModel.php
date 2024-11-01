@@ -89,7 +89,7 @@ class PessoaModel {
         return $stmt->rowCount() > 0;
     }
 
-    public function listar($termo, $colunaOrdenacao, $ordem) {
+    public function listar($termo, $colunaOrdenacao, $ordem, $situacao) {
 
         $colunasPermitidas = ['pessoa_nome', 'pessoa_id', 'pessoa_adicionado_em'];
         $ordensPermitidas = ['ASC', 'DESC'];
@@ -98,9 +98,19 @@ class PessoaModel {
         $ordem = in_array($ordem, $ordensPermitidas) ? $ordem : 'ASC';
 
         $query = "SELECT * FROM view_pessoas";
+        $conditions = [];
+
         if (!empty($termo)) {
-            $query .= " WHERE pessoa_nome LIKE :termo";
+            $conditions[] = "pessoa_nome LIKE :termo";
         }
+        if (!empty($situacao)) {
+            $conditions[] = "pessoa_situacao = :situacao";
+        }
+
+        if (!empty($conditions)) {
+            $query .= " WHERE " . implode(" AND ", $conditions);
+        }
+
         $query .= " ORDER BY {$colunaOrdenacao} {$ordem}";
 
         $stmt = $this->db->prepare($query);
@@ -108,10 +118,14 @@ class PessoaModel {
         if (!empty($termo)) {
             $stmt->bindValue(':termo', '%' . $termo . '%', PDO::PARAM_STR);
         }
+        if (!empty($situacao)) {
+            $stmt->bindValue(':situacao', $situacao, PDO::PARAM_STR);
+        }
 
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
 
     public function buscar($id) {
         $query = "SELECT * FROM view_pessoas WHERE pessoa_id = :id";
