@@ -2,13 +2,22 @@
 
 body {
     background-image: url('../img/main_background.jpg');
-    background-repeat: none;
+    background-repeat: no-repeat;
+    /* Corrigido de 'none' para 'no-repeat' */
 
-
-    background-color: rgb(129, 119, 153);
+    background-color: rgb(0, 0, 0);
     font-family: "Poppins", sans-serif;
     font-size: 14px;
 }
+
+.login-screen {
+    background-image: url('../img/background_1.jpg');
+    background-repeat: no-repeat;
+    /* Corrigido de 'none' para 'no-repeat' */
+    background-size: cover;
+    /* Adicionado para cobrir toda a área */
+}
+
 
 a {
     text-decoration: none;
@@ -63,7 +72,7 @@ a {
 
 .custom-pagination .page-link {
     font-size: 0.850em;
-    
+
 }
 
 
@@ -152,88 +161,88 @@ a {
 
 
 
- /* Definindo a altura mínima da tela */
- html,
- body {
-     height: 100%;
- }
+/* Definindo a altura mínima da tela */
+html,
+body {
+    height: 100%;
+}
 
- .centralizada {
-     width: 100%;
-     max-width: 420px;
-     padding: 20px;
- }
+.centralizada {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+}
 
- /* Estilo customizado para arredondar os inputs e o botão */
- input[type="email"],
- input[type="password"] {
-     border-radius: 20px;
-     /* Aqui você define o nível de arredondamento */
-     padding: 10px;
-     padding-left: 25px;
-     border: 1px solid #ccc;
-     color: gray;
-     font-size: 1em;
-     font-weight: 500;
- }
+/* Estilo customizado para arredondar os inputs e o botão */
+input[type="email"],
+input[type="password"] {
+    border-radius: 20px;
+    /* Aqui você define o nível de arredondamento */
+    padding: 10px;
+    padding-left: 25px;
+    border: 1px solid #ccc;
+    color: gray;
+    font-size: 1em;
+    font-weight: 500;
+}
 
- 
 
- button[type="submit"] {
-     background-color: #272775;
-     color: white;
-     border: none;
-     border-radius: 20px;
-     /* Aqui você define o nível de arredondamento */
-     width: 100%;
-     margin-top: 10px;
-     padding: 10px;
-     font-size: 1.2em;
-     font-weight: 500;
- }
 
- button[type="submit"]:hover {
-     background-color: green;
-     color: white;
- }
+button[type="submit"] {
+    background-color: #272775;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    /* Aqui você define o nível de arredondamento */
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 1.2em;
+    font-weight: 500;
+}
 
- /* Adicionando espaçamento interno e margem */
- .form-control {
-     margin-bottom: 10px;
- }
+button[type="submit"]:hover {
+    background-color: green;
+    color: white;
+}
 
- 
+/* Adicionando espaçamento interno e margem */
+.form-control {
+    margin-bottom: 10px;
+}
 
- .link {
-     color: white;
-     font-weight: 200;
- }
 
- a {
-     text-decoration: none;
-     color: white;
- }
 
- .img_logo {
-     width: 30%;
-     margin-bottom: 30px;
- }
+.link {
+    color: white;
+    font-weight: 200;
+}
 
- .login_title {
-     color: white;
-     margin-bottom: 5px;
-     font-weight: 300;
- }
+a {
+    text-decoration: none;
+    color: white;
+}
 
- .host {
-     color: white;
-     margin-bottom: 30px;
-     font-weight: 300;
-     font-size: 0.9em;
- }
+.img_logo {
+    width: 30%;
+    margin-bottom: 30px;
+}
 
- .copyright {
-     color: #e3e3e8;
-     font-size: 0.8em;
-     font-weight: 100;
- }
+.login_title {
+    color: white;
+    margin-bottom: 5px;
+    font-weight: 300;
+}
+
+.host {
+    color: white;
+    margin-bottom: 30px;
+    font-weight: 300;
+    font-size: 0.9em;
+}
+
+.copyright {
+    color: #e3e3e8;
+    font-size: 0.8em;
+    font-weight: 100;
+}

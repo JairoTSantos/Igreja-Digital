@@ -1,7 +1,7 @@
-<head>
-    <?php include dirname(__DIR__, 2) . '/public/includes/header.php'; ?>
-    <title><?= $appConfig['app']['app_name'] ?> :: Secretaria</title>
-</head>
+<?php
+$pageTitle = 'Home';
+include dirname(__DIR__, 2) . '/public/includes/header.php'; // Inclua o header apenas uma vez
+?>
 
 <body>
     <div class="d-flex" id="wrapper">
