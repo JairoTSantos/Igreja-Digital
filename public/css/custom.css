@@ -169,13 +169,15 @@ a {
  input[type="password"] {
      border-radius: 20px;
      /* Aqui você define o nível de arredondamento */
-     padding: 15px;
+     padding: 10px;
      padding-left: 25px;
      border: 1px solid #ccc;
      color: gray;
      font-size: 1em;
      font-weight: 500;
  }
+
+ 
 
  button[type="submit"] {
      background-color: #272775;
@@ -199,6 +201,8 @@ a {
  .form-control {
      margin-bottom: 10px;
  }
+
+ 
 
  .link {
      color: white;
