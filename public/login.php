@@ -1,8 +1,7 @@
 <head>
     <?php include dirname(__DIR__) . '/public/includes/header.php'; ?>
-    <title><?= $appConfig['app']['app_name'] ?> :: Home</title>
+    <title><?= $appConfig['app']['app_name'] ?> :: Login</title>
 </head>
-
 
 <body>
     <div class="d-flex" id="wrapper">
@@ -11,7 +10,7 @@
         <div id="page-content-wrapper">
             <?php include dirname(__DIR__) . '/public/includes/top_menu.php' ?>
             <div class="container-fluid">
-
+                pagina login
             </div>
         </div>
     </div>
