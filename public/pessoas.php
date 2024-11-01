@@ -17,6 +17,9 @@ $ordem = $_GET['ordem'] ?? 'asc';
 $termo = $_GET['termo'] ?? null;
 $filtro = $_GET['filtro'] ?? null;
 
+$paginaGet = $_GET['pagina'] ?? 1;
+$limiteGet = $_GET['limite'] ?? 10;
+
 ?>
 
 <!DOCTYPE html>
@@ -29,6 +32,8 @@ $filtro = $_GET['filtro'] ?? null;
     <meta name="author" content="" />
     <title>Igreja Digital | Pessoas</title>
     <?php include 'includes/header.php' ?>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+
 </head>
 
 <body>
@@ -243,7 +248,15 @@ $filtro = $_GET['filtro'] ?? null;
                                     <option value="DESC" <?php echo ($ordem == 'DESC') ? 'selected' : ''; ?>>Decrescente</option>
                                 </select>
                             </div>
-                            <div class="col-md-2 col-12">
+                            <div class="col-md-1 col-6">
+                                <select class="form-select form-select-sm" name="limite">
+                                    <option value="5" <?php echo ($limiteGet == 5) ? 'selected' : ''; ?>>5 itens</option>
+                                    <option value="10" <?php echo ($limiteGet == 10) ? 'selected' : ''; ?>>10 itens</option>
+                                    <option value="50" <?php echo ($limiteGet == 50) ? 'selected' : ''; ?>>50 itens</option>
+                                    <option value="100" <?php echo ($limiteGet == 100) ? 'selected' : ''; ?>>100 itens</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 col-6">
                                 <select class="form-select form-select-sm" name="filtro" required>
                                     <option value="0">Todos</option>
                                     <?php
@@ -263,7 +276,7 @@ $filtro = $_GET['filtro'] ?? null;
                             <div class="col-md-2 col-10">
                                 <input type="text" class="form-control form-control-sm" name="termo" placeholder="Buscar..." value="<?php echo $termo; ?>">
                             </div>
-                            <div class="col-md-4 col-2">
+                            <div class="col-md-3 col-2">
                                 <button type="submit" class="btn btn-success btn-sm" name="btn_buscar" onclick="this.name='';"><i class="fa-solid fa-magnifying-glass"></i></button>
                             </div>
                         </form>
@@ -272,7 +285,7 @@ $filtro = $_GET['filtro'] ?? null;
 
                 <div class="card shadow-sm">
                     <div class="card-body p-2">
-                        <div class="table-responsive">
+                        <div class="table-responsive mb-2">
                             <table class="table table-striped table-hover table-bordered mb-0 custom_table">
                                 <thead>
                                     <tr>
@@ -287,7 +300,10 @@ $filtro = $_GET['filtro'] ?? null;
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $busca = $pessoaController->listar($termo, $ordernar_por,  $ordem, $filtro);
+                                    $busca = $pessoaController->listar($termo, $ordernar_por,  $ordem, $filtro, $paginaGet, $limiteGet);
+
+                                    //print_r($busca);
+
                                     if ($busca['status'] == 'success') {
                                         foreach ($busca['dados'] as $pessoa) {
                                             echo '<tr>';
@@ -308,7 +324,41 @@ $filtro = $_GET['filtro'] ?? null;
                                     ?>
                                 </tbody>
                             </table>
+
                         </div>
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination custom-pagination mb-0">
+                                <?php if ($busca['total_paginas'] > 1) : ?>
+                                    <li class="page-item <?= $paginaGet == 1 ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?pagina=1&ordernar_por=<?= $ordernar_por ?>&ordernar_por=<?= $ordernar_por ?>&ordem=<?= $ordem ?>&termo=<?= $termo ?>&filtro=<?= $filtro ?>&limite=<?= $limiteGet ?>" aria-label="Primeira">
+                                            <span aria-hidden="true">Primeira página</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item <?= $paginaGet == 1 ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?pagina=<?= $paginaGet - 1 ?>&ordernar_por=<?= $ordernar_por ?>&ordem=<?= $ordem ?>&termo=<?= $termo ?>&filtro=<?= $filtro ?>&limite=<?= $limiteGet ?>" aria-label="Anterior">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+
+                                    <?php for ($i = 1; $i <= $busca['total_paginas']; $i++) : ?>
+                                        <li class="page-item <?= $i == $paginaGet ? 'active' : '' ?>">
+                                            <a class="page-link" href="?pagina=<?= $i ?>&ordernar_por=<?= $ordernar_por ?>&ordem=<?= $ordem ?>&termo=<?= $termo ?>&filtro=<?= $filtro ?>&limite=<?= $limiteGet ?>"><?= $i ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+
+                                    <li class="page-item <?= $paginaGet == $busca['total_paginas'] ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?pagina=<?= $paginaGet + 1 ?>&ordernar_por=<?= $ordernar_por ?>&ordem=<?= $ordem ?>&termo=<?= $termo ?>&filtro=<?= $filtro ?>&limite=<?= $limiteGet ?>" aria-label="Próxima">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item <?= $paginaGet == $busca['total_paginas'] ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?pagina=<?= $busca['total_paginas'] ?>&ordernar_por=<?= $ordernar_por ?>&ordem=<?= $ordem ?>&termo=<?= $termo ?>&filtro=<?= $filtro ?>&limite=<?= $limiteGet ?>" aria-label="Última">
+                                            <span aria-hidden="true">Última Página</span>
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
+                            </ul>
+                        </nav>
                     </div>
                 </div>
 

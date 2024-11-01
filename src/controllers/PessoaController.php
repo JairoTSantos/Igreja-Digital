@@ -219,19 +219,22 @@ class PessoaController {
         }
     }
 
-    public function listar($termo = '', $colunaOrdenacao = 'pessoa_nome', $ordem = 'ASC', $situacao = null) {
+    public function listar($termo = '', $colunaOrdenacao = 'pessoa_nome', $ordem = 'ASC', $situacao = null, $pagina = 1, $limite = 10) {
         try {
-            // Chama o método listar do modelo, passando o parâmetro $situacao
-            $result = $this->pessoaModel->listar($termo, $colunaOrdenacao, $ordem, $situacao);
-
-            if (empty($result)) {
+            // Chama o método listar do modelo, passando os parâmetros, incluindo paginação
+            $result = $this->pessoaModel->listar($termo, $colunaOrdenacao, $ordem, $situacao, $pagina, $limite);
+    
+            if (empty($result['resultados'])) {
                 return ['status' => 'empty', 'message' => 'Nenhuma pessoa registrada.'];
             }
-
+    
             return [
                 'status' => 'success',
-                'message' => count($result) . ' pessoa(s) encontrada(s).',
-                'dados' => $result
+                'message' => count($result['resultados']) . ' pessoa(s) encontrada(s).',
+                'dados' => $result['resultados'],
+                'pagina_atual' => $result['pagina_atual'],
+                'total_paginas' => $result['total_paginas'],
+                'total_registros' => $result['total_registros']
             ];
         } catch (PDOException $e) {
             $this->logger->novoLog('pessoa_error', $e->getMessage());
@@ -242,8 +245,7 @@ class PessoaController {
             ];
         }
     }
-
-
+    
     public function buscar($id) {
         if (!is_numeric($id) || $id <= 0) {
             return ['status' => 'bad_request', 'message' => 'ID inválido.'];
